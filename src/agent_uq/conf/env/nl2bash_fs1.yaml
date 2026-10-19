@@ -1,0 +1,9 @@
+adapter_name: nl2bash
+backend: docker
+dataset_key: nl2bash_fs1
+dataset_path: vendor/intercode/data/nl2bash/nl2bash_fs_1.json
+target_type: binary
+image: intercode-nl2bash
+shell: /bin/bash
+step_timeout_s: 5
+score_timeout_s: 5

@@ -1,0 +1,4 @@
+num_workers: 1
+devices:
+- cuda:0
+worker_index:

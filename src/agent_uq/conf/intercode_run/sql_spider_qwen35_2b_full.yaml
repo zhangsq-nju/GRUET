@@ -1,0 +1,12 @@
+# @package _global_
+defaults:
+- override /model: qwen35_2b
+- override /env: sql_spider
+- override /sampling: qwen35
+- _self_
+intercode_run:
+  name: sql_spider_qwen35_2b_full
+  output_root: output/${intercode_run.name}
+output_dir: ${intercode_run.output_root}
+run_dir: ${output_dir}
+max_records: 100

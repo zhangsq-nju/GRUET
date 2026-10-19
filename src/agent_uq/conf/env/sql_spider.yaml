@@ -1,0 +1,13 @@
+adapter_name: sql
+backend: docker
+dataset_key: sql_spider
+dataset_path: vendor/intercode/data/sql/spider/ic_spider_dev.json
+schema_sql_path: vendor/intercode/data/sql/spider/ic_spider_dbs.sql
+target_type: binary
+image: mysql:latest
+root_password: password
+step_timeout_s: 5
+score_timeout_s: 10
+startup_timeout_s: 120
+query_row_limit: 200
+lower_case_table_names: 1

@@ -1,0 +1,2 @@
+name: predictive_entropy
+class_path: agent_uq.uq.lm_polygraph.PredictiveEntropyEstimator

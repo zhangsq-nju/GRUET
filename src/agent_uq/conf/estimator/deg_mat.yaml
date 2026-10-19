@@ -1,0 +1,7 @@
+name: deg_mat
+class_path: agent_uq.uq.lm_polygraph.DegMatEstimator
+similarity_score: NLI_score
+affinity: entail
+nli_model_name: microsoft/deberta-large-mnli
+nli_batch_size: 32
+nli_device:

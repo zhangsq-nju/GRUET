@@ -1,0 +1,20 @@
+estimators:
+- ppl
+- predictive_entropy
+- semantic_entropy
+- sentence_sar
+- semantic_density
+- p_true
+- cot_uq_me
+- verbalized_2s
+- eig_val_laplacian
+- deg_mat
+- eccentricity
+- cot_uq_sp
+- topouq
+- gut_up
+aggregators:
+- mean
+metrics:
+- ROCAUC
+output_basename: evaluation_table

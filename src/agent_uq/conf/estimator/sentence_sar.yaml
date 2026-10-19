@@ -1,0 +1,5 @@
+name: sentence_sar
+class_path: agent_uq.uq.lm_polygraph.SentenceSAREstimator
+cross_encoder_name: cross-encoder/stsb-roberta-large
+cross_encoder_batch_size: 10
+cross_encoder_device:

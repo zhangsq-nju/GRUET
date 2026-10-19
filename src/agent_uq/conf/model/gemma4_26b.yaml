@@ -1,0 +1,10 @@
+name: gemma4_26b
+model_path: google/gemma-4-26B-A4B-it
+tokenizer_path: google/gemma-4-26B-A4B-it
+dtype: bfloat16
+trust_remote_code: true
+gpu_memory_utilization: 0.95
+tensor_parallel_size: 2
+auxiliary_vllm:
+  tensor_parallel_size: 2
+  gpu_memory_utilization: 0.95

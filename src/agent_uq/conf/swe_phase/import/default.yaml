@@ -1,0 +1,9 @@
+dataset_key: swe_bench
+target_type: binary
+env_name: swe
+model_name: ''
+tokenizer_name: ''
+raw_seed: 0
+raw_turn_mode: selected_only
+gzip_records: false
+reuse_if_cached: false

@@ -1,0 +1,12 @@
+# @package _global_
+defaults:
+- override /model: gemma4_e2b
+- override /env: nl2bash_fs1
+- override /sampling: gemma4
+- _self_
+intercode_run:
+  name: nl2bash_fs1_gemma4_e2b_full
+  output_root: output/${intercode_run.name}
+output_dir: ${intercode_run.output_root}
+run_dir: ${output_dir}
+max_records: 100

@@ -1,0 +1,15 @@
+top_k_logprobs: 20
+top_k: 64
+num_samples: 15
+max_turns: 10
+num_shots: 5
+temperature: 1.0
+top_p: 0.95
+max_new_tokens: 3072
+stop_sequences: []
+seed: 42
+rejection:
+  enabled: true
+  retry_budget_multiplier_per_turn: 6
+  max_retry_candidates_per_turn:
+  max_retry_candidates_per_episode:

@@ -1,0 +1,8 @@
+name: semantic_entropy
+class_path: agent_uq.uq.lm_polygraph.SemanticEntropyEstimator
+class_probability_estimation: sum
+entropy_estimation: mean
+use_unique_responses: false
+nli_model_name: microsoft/deberta-large-mnli
+nli_batch_size: 32
+nli_device:

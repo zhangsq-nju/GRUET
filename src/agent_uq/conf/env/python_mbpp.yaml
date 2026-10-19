@@ -1,0 +1,10 @@
+adapter_name: python
+backend: docker
+dataset_key: python_mbpp
+dataset_path: vendor/intercode/data/python/mbpp/ic_mbpp.json
+target_type: binary
+terminal_action: submit
+image: intercode-python
+step_timeout_s: 5
+score_timeout_s: 15
+per_case_timeout_s: 4

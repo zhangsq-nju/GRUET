@@ -1,0 +1,7 @@
+name: verbalized_2s
+class_path: agent_uq.uq.lm_polygraph.Verbalized2SEstimator
+anchor_mode: selected
+auxiliary_model_ref: sampled_model
+confidence_regex: Probability:\s*(\d+\.\d+)
+min_new_tokens: 2
+max_new_tokens: 10

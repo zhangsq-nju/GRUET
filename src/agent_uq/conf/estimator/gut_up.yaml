@@ -1,0 +1,18 @@
+name: gut_up
+class_path: agent_uq.uq.graphuq_estimator.GraphUQEstimator
+graph_type: gut_up
+merge_way: aov
+sim_way: 2entail
+aggregation: sum
+weight: prob
+token_level: avg neg logprob
+step_aggregation: bottom-3%
+beta: 0.0
+alpha: 0.2
+window_size: 6
+nli_batch_size: 128
+nli_device:
+action_similarity_model_name: Salesforce/SFR-Embedding-Code-2B_R
+action_similarity_threshold: 0.7
+action_similarity_batch_size: 6
+action_similarity_device:

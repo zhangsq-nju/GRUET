@@ -1,0 +1,36 @@
+qwen35_2b:
+  model_path: Qwen/Qwen3.5-2B
+  tokenizer_path: Qwen/Qwen3.5-2B
+  tensor_parallel_size: 1
+qwen35_4b:
+  model_path: Qwen/Qwen3.5-4B
+  tokenizer_path: Qwen/Qwen3.5-4B
+  tensor_parallel_size: 1
+qwen35_9b:
+  model_path: Qwen/Qwen3.5-9B
+  tokenizer_path: Qwen/Qwen3.5-9B
+  tensor_parallel_size: 1
+gemma4_e2b:
+  model_path: google/gemma-4-E2B-it
+  tokenizer_path: google/gemma-4-E2B-it
+  tensor_parallel_size: 1
+gemma4_e4b:
+  model_path: google/gemma-4-E4B-it
+  tokenizer_path: google/gemma-4-E4B-it
+  tensor_parallel_size: 1
+qwen35_27b:
+  model_path: Qwen/Qwen3.5-27B
+  tokenizer_path: Qwen/Qwen3.5-27B
+  tensor_parallel_size: 2
+qwen35_35b:
+  model_path: Qwen/Qwen3.5-35B-A3B
+  tokenizer_path: Qwen/Qwen3.5-35B-A3B
+  tensor_parallel_size: 2
+gemma4_26b:
+  model_path: google/gemma-4-26B-A4B-it
+  tokenizer_path: google/gemma-4-26B-A4B-it
+  tensor_parallel_size: 2
+gemma4_31b:
+  model_path: google/gemma-4-31B-it
+  tokenizer_path: google/gemma-4-31B-it
+  tensor_parallel_size: 2

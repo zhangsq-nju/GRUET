@@ -1,0 +1,27 @@
+# @package _global_
+defaults:
+- override /swe_phase/source@source: swe_bench
+- override /swe_phase/bootstrap@bootstrap: local_swe_rex_rewrite
+- override /swe_phase/launch@launch: qwen35_series_tp2
+- override /swe_phase/evaluation@evaluation: swebench_harness
+- override /swe_phase/import@import: default
+- _self_
+swe_run:
+  name: swebench_lite_qwen35_35b_tp2_full
+  output_root: output/${swe_run.name}
+  posthoc:
+    import_root: ${swe_run.output_root}/import
+mode: launch_and_import
+output_dir: ${swe_run.output_root}
+run_dir: ${swe_run.posthoc.import_root}
+source:
+  subset: lite
+  split: test
+  slice: :100
+launch:
+  model:
+    name: ${oc.env:MODEL_PATH,Qwen/Qwen3.5-35B-A3B}
+    tokenizer_path: ${launch.model.name}
+import:
+  model_name: ${launch.model.name}
+  tokenizer_name: ${launch.model.tokenizer_path}

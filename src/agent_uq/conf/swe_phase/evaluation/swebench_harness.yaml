@@ -1,0 +1,19 @@
+mode: swebench_harness
+report_path: ''
+prediction_source_path: ${launch.output_dir}/preds.json
+normalized_report_path: ${output_dir}/runtime/results.json
+swebench_harness:
+  dataset_name: auto
+  split: auto
+  output_dir: ${output_dir}/runtime/swebench-harness-reports
+  max_workers: 4
+  open_file_limit: 4096
+  timeout: 1800
+  force_rebuild: false
+  cache_level: env
+  clean: false
+  namespace: swebench
+  instance_image_tag: latest
+  env_image_tag: latest
+  rewrite_reports: false
+  modal: false

@@ -1,0 +1,8 @@
+name: eccentricity
+class_path: agent_uq.uq.lm_polygraph.EccentricityEstimator
+similarity_score: NLI_score
+affinity: entail
+thres: 0.9
+nli_model_name: microsoft/deberta-large-mnli
+nli_batch_size: 32
+nli_device:

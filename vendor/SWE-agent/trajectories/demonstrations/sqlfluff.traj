@@ -1,0 +1,426 @@
+{
+  "trajectory": [
+    {
+      "action": "find_file \"L060\"\n",
+      "observation": "No matches found for \"L060\" in /testbed\n",
+      "response": "Step 1: I need to understand the issue.\nStep 2: Rule L060 currently gives a generic error message mentioning both 'IFNULL' and 'NVL', but it should be specific to which function was actually used.\nStep 3: Let me first explore the repository structure to find where this rule is defined.\nStep 4: I'll search for files containing \"L060\" to locate the relevant code.\n\n```\nfind_file \"L060\"\n```\n",
+      "state": {
+        "open_file": "n/a",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: I need to understand the issue.\nStep 2: Rule L060 currently gives a generic error message mentioning both 'IFNULL' and 'NVL', but it should be specific to which function was actually used.\nStep 3: Let me first explore the repository structure to find where this rule is defined.\nStep 4: I'll search for files containing \"L060\" to locate the relevant code."
+    },
+    {
+      "action": "search_dir \"L060\"\n",
+      "observation": "Found 4 matches for \"L060\" in /testbed:\n/testbed/src/sqlfluff.egg-info/SOURCES.txt (1 matches)\n/testbed/src/sqlfluff/rules/L060.py (2 matches)\n/testbed/test/fixtures/rules/std_rule_cases/L060.yml (1 matches)\nEnd of matches for \"L060\" in /testbed\n",
+      "response": "Step 1: The find_file command searches for filenames, not content.\nStep 2: I need to search for \"L060\" in the file contents.\nStep 3: Let me use search_dir to find where L060 is defined in the codebase.\n\n```\nsearch_dir \"L060\"\n```\n",
+      "state": {
+        "open_file": "n/a",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: The find_file command searches for filenames, not content.\nStep 2: I need to search for \"L060\" in the file contents.\nStep 3: Let me use search_dir to find where L060 is defined in the codebase."
+    },
+    {
+      "action": "open \"/testbed/src/sqlfluff/rules/L060.py\"\n",
+      "observation": "[File: /testbed/src/sqlfluff/rules/L060.py (62 lines total)]\n1:\"\"\"Implementation of Rule L060.\"\"\"\n2:\n3:from typing import Optional\n4:\n5:from sqlfluff.core.parser.segments.raw import CodeSegment\n6:from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext\n7:from sqlfluff.core.rules.doc_decorators import document_fix_compatible\n8:\n9:\n10:@document_fix_compatible\n11:class Rule_L060(BaseRule):\n12:    \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\n13:\n14:    | **Anti-pattern**\n15:    | ``IFNULL`` or ``NVL`` are used to fill ``NULL`` values.\n16:\n17:    .. code-block:: sql\n18:\n19:        SELECT ifnull(foo, 0) AS bar,\n20:        FROM baz;\n21:\n22:        SELECT nvl(foo, 0) AS bar,\n23:        FROM baz;\n24:\n25:    | **Best practice**\n26:    | Use ``COALESCE`` instead.\n27:    | ``COALESCE`` is universally supported,\n28:    | whereas Redshift doesn't support ``IFNULL``\n29:    | and BigQuery doesn't support ``NVL``.\n30:    | Additionally ``COALESCE`` is more flexible\n31:    | and accepts an arbitrary number of arguments.\n32:\n33:    .. code-block:: sql\n34:\n35:        SELECT coalesce(foo, 0) AS bar,\n36:        FROM baz;\n37:\n38:    \"\"\"\n39:\n40:    def _eval(self, context: RuleContext) -> Optional[LintResult]:\n41:        \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\"\"\"\n42:        # We only care about function names.\n43:        if context.segment.name != \"function_name_identifier\":\n44:            return None\n45:\n46:        # Only care if the function is ``IFNULL`` or ``NVL``.\n47:        if context.segment.raw_upper not in {\"IFNULL\", \"NVL\"}:\n48:            return None\n49:\n50:        # Create fix to replace ``IFNULL`` or ``NVL`` with ``COALESCE``.\n51:        fix = LintFix.replace(\n52:            context.segment,\n53:            [\n54:                CodeSegment(\n55:                    raw=\"COALESCE\",\n56:                    name=\"function_name_identifier\",\n57:                    type=\"function_name_identifier\",\n58:                )\n59:            ],\n60:        )\n61:\n62:        return LintResult(context.segment, [fix])\n",
+      "response": "Step 1: I found the L060 rule file at `/testbed/src/sqlfluff/rules/L060.py`.\nStep 2: Let me open it to see the current implementation and understand how the error message is generated.\n\n```\nopen \"/testbed/src/sqlfluff/rules/L060.py\"\n```\n",
+      "state": {
+        "open_file": "/testbed/src/sqlfluff/rules/L060.py",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: I found the L060 rule file at `/testbed/src/sqlfluff/rules/L060.py`.\nStep 2: Let me open it to see the current implementation and understand how the error message is generated."
+    },
+    {
+      "action": "cat > /testbed/test_l060.py << 'EOF'\nimport sqlfluff\n\n# Test IFNULL\nsql_ifnull = \"SELECT ifnull(foo, 0) AS bar FROM baz;\"\nresult_ifnull = sqlfluff.lint(sql_ifnull, rules=[\"L060\"])\nprint(\"IFNULL lint result:\")\nfor r in result_ifnull:\n    print(f\"  {r}\")\n\n# Test NVL\nsql_nvl = \"SELECT nvl(foo, 0) AS bar FROM baz;\"\nresult_nvl = sqlfluff.lint(sql_nvl, rules=[\"L060\"])\nprint(\"\\nNVL lint result:\")\nfor r in result_nvl:\n    print(f\"  {r}\")\n\nprint(\"\\nScript completed successfully, no errors.\")\nEOF\n",
+      "observation": "",
+      "response": "Step 1: Now I understand the issue.\nStep 2: The L060 rule currently returns a generic message \"Use 'COALESCE' instead of 'IFNULL' or 'NVL'.\" but should be specific to which function was used.\nStep 3: Let me create a test script to reproduce the current behavior and verify the issue.\n\n```\ncat > /testbed/test_l060.py << 'EOF'\nimport sqlfluff\n\n# Test IFNULL\nsql_ifnull = \"SELECT ifnull(foo, 0) AS bar FROM baz;\"\nresult_ifnull = sqlfluff.lint(sql_ifnull, rules=[\"L060\"])\nprint(\"IFNULL lint result:\")\nfor r in result_ifnull:\n    print(f\"  {r}\")\n\n# Test NVL\nsql_nvl = \"SELECT nvl(foo, 0) AS bar FROM baz;\"\nresult_nvl = sqlfluff.lint(sql_nvl, rules=[\"L060\"])\nprint(\"\\nNVL lint result:\")\nfor r in result_nvl:\n    print(f\"  {r}\")\n\nprint(\"\\nScript completed successfully, no errors.\")\nEOF\n```\n",
+      "state": {
+        "open_file": "/testbed/test/fixtures/rules/std_rule_cases/L060.yml",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: Now I understand the issue.\nStep 2: The L060 rule currently returns a generic message \"Use 'COALESCE' instead of 'IFNULL' or 'NVL'.\" but should be specific to which function was used.\nStep 3: Let me create a test script to reproduce the current behavior and verify the issue."
+    },
+    {
+      "action": "python /testbed/test_l060.py\n",
+      "observation": "IFNULL lint result:\n  {'line_no': 1, 'line_pos': 8, 'code': 'L060', 'description': \"Use 'COALESCE' instead of 'IFNULL' or 'NVL'.\"}\n\nNVL lint result:\n  {'line_no': 1, 'line_pos': 8, 'code': 'L060', 'description': \"Use 'COALESCE' instead of 'IFNULL' or 'NVL'.\"}\n\nScript completed successfully, no errors.\n",
+      "response": "Step 1: I've created a test script to reproduce the issue.\nStep 2: Now let me run it to see the current behavior.\n\n```\npython /testbed/test_l060.py\n```\n",
+      "state": {
+        "open_file": "/testbed/test/fixtures/rules/std_rule_cases/L060.yml",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: I've created a test script to reproduce the issue.\nStep 2: Now let me run it to see the current behavior."
+    },
+    {
+      "action": "open \"/testbed/src/sqlfluff/rules/L060.py\"\n",
+      "observation": "[File: /testbed/src/sqlfluff/rules/L060.py (62 lines total)]\n1:\"\"\"Implementation of Rule L060.\"\"\"\n2:\n3:from typing import Optional\n4:\n5:from sqlfluff.core.parser.segments.raw import CodeSegment\n6:from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext\n7:from sqlfluff.core.rules.doc_decorators import document_fix_compatible\n8:\n9:\n10:@document_fix_compatible\n11:class Rule_L060(BaseRule):\n12:    \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\n13:\n14:    | **Anti-pattern**\n15:    | ``IFNULL`` or ``NVL`` are used to fill ``NULL`` values.\n16:\n17:    .. code-block:: sql\n18:\n19:        SELECT ifnull(foo, 0) AS bar,\n20:        FROM baz;\n21:\n22:        SELECT nvl(foo, 0) AS bar,\n23:        FROM baz;\n24:\n25:    | **Best practice**\n26:    | Use ``COALESCE`` instead.\n27:    | ``COALESCE`` is universally supported,\n28:    | whereas Redshift doesn't support ``IFNULL``\n29:    | and BigQuery doesn't support ``NVL``.\n30:    | Additionally ``COALESCE`` is more flexible\n31:    | and accepts an arbitrary number of arguments.\n32:\n33:    .. code-block:: sql\n34:\n35:        SELECT coalesce(foo, 0) AS bar,\n36:        FROM baz;\n37:\n38:    \"\"\"\n39:\n40:    def _eval(self, context: RuleContext) -> Optional[LintResult]:\n41:        \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\"\"\"\n42:        # We only care about function names.\n43:        if context.segment.name != \"function_name_identifier\":\n44:            return None\n45:\n46:        # Only care if the function is ``IFNULL`` or ``NVL``.\n47:        if context.segment.raw_upper not in {\"IFNULL\", \"NVL\"}:\n48:            return None\n49:\n50:        # Create fix to replace ``IFNULL`` or ``NVL`` with ``COALESCE``.\n51:        fix = LintFix.replace(\n52:            context.segment,\n53:            [\n54:                CodeSegment(\n55:                    raw=\"COALESCE\",\n56:                    name=\"function_name_identifier\",\n57:                    type=\"function_name_identifier\",\n58:                )\n59:            ],\n60:        )\n61:\n62:        return LintResult(context.segment, [fix])\n",
+      "response": "Step 1: I've confirmed the issue.\nStep 2: Both IFNULL and NVL return the same generic message \"Use 'COALESCE' instead of 'IFNULL' or 'NVL'.\" when they should return specific messages.\nStep 3: Now let me look at the L060.py file again to understand how to fix this.\n\n```\nopen \"/testbed/src/sqlfluff/rules/L060.py\"\n```\n",
+      "state": {
+        "open_file": "/testbed/src/sqlfluff/rules/L060.py",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: I've confirmed the issue.\nStep 2: Both IFNULL and NVL return the same generic message \"Use 'COALESCE' instead of 'IFNULL' or 'NVL'.\" when they should return specific messages.\nStep 3: Now let me look at the L060.py file again to understand how to fix this."
+    },
+    {
+      "action": "edit 62:62\n        # Create a specific description based on the function used\n        description = f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\"\n        return LintResult(context.segment, [fix], description=description)\nend_of_edit\n",
+      "observation": "File updated. Please review the changes and make sure they are correct\n(correct indentation, no duplicate lines, etc). Edit the file again if necessary.\n[File: /testbed/src/sqlfluff/rules/L060.py (64 lines total)]\n1:\"\"\"Implementation of Rule L060.\"\"\"\n2:\n3:from typing import Optional\n4:\n5:from sqlfluff.core.parser.segments.raw import CodeSegment\n6:from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext\n7:from sqlfluff.core.rules.doc_decorators import document_fix_compatible\n8:\n9:\n10:@document_fix_compatible\n11:class Rule_L060(BaseRule):\n12:    \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\n13:\n14:    | **Anti-pattern**\n15:    | ``IFNULL`` or ``NVL`` are used to fill ``NULL`` values.\n16:\n17:    .. code-block:: sql\n18:\n19:        SELECT ifnull(foo, 0) AS bar,\n20:        FROM baz;\n21:\n22:        SELECT nvl(foo, 0) AS bar,\n23:        FROM baz;\n24:\n25:    | **Best practice**\n26:    | Use ``COALESCE`` instead.\n27:    | ``COALESCE`` is universally supported,\n28:    | whereas Redshift doesn't support ``IFNULL``\n29:    | and BigQuery doesn't support ``NVL``.\n30:    | Additionally ``COALESCE`` is more flexible\n31:    | and accepts an arbitrary number of arguments.\n32:\n33:    .. code-block:: sql\n34:\n35:        SELECT coalesce(foo, 0) AS bar,\n36:        FROM baz;\n37:\n38:    \"\"\"\n39:\n40:    def _eval(self, context: RuleContext) -> Optional[LintResult]:\n41:        \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\"\"\"\n42:        # We only care about function names.\n43:        if context.segment.name != \"function_name_identifier\":\n44:            return None\n45:\n46:        # Only care if the function is ``IFNULL`` or ``NVL``.\n47:        if context.segment.raw_upper not in {\"IFNULL\", \"NVL\"}:\n48:            return None\n49:\n50:        # Create fix to replace ``IFNULL`` or ``NVL`` with ``COALESCE``.\n51:        fix = LintFix.replace(\n52:            context.segment,\n53:            [\n54:                CodeSegment(\n55:                    raw=\"COALESCE\",\n56:                    name=\"function_name_identifier\",\n57:                    type=\"function_name_identifier\",\n58:                )\n59:            ],\n60:        )\n61:\n62:        # Create a specific description based on the function used\n63:        description = f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\"\n64:        return LintResult(context.segment, [fix], description=description)\n",
+      "response": "Step 1: I can see the issue clearly now.\nStep 2: On line 62, the LintResult is created without a description parameter, so it uses the default rule description.\nStep 3: I need to modify the code to pass a specific description based on whether the segment is \"IFNULL\" or \"NVL\".\nStep 4: I'll edit line 62 to add a description that uses context.segment.raw_upper to create a specific message.\n\n```\nedit 62:62\n        # Create a specific description based on the function used\n        description = f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\"\n        return LintResult(context.segment, [fix], description=description)\nend_of_edit\n```\n",
+      "state": {
+        "open_file": "/testbed/src/sqlfluff/rules/L060.py",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: I can see the issue clearly now.\nStep 2: On line 62, the LintResult is created without a description parameter, so it uses the default rule description.\nStep 3: I need to modify the code to pass a specific description based on whether the segment is \"IFNULL\" or \"NVL\".\nStep 4: I'll edit line 62 to add a description that uses context.segment.raw_upper to create a specific message."
+    },
+    {
+      "action": "python /testbed/test_l060.py\n",
+      "observation": "IFNULL lint result:\n  {'line_no': 1, 'line_pos': 8, 'code': 'L060', 'description': \"Use 'COALESCE' instead of 'IFNULL'.\"}\n\nNVL lint result:\n  {'line_no': 1, 'line_pos': 8, 'code': 'L060', 'description': \"Use 'COALESCE' instead of 'NVL'.\"}\n\nScript completed successfully, no errors.\n",
+      "response": "Step 1: The edit looks correct.\nStep 2: Now let me run the test script again to verify that the fix works correctly and produces specific error messages.\n\n```\npython /testbed/test_l060.py\n```\n",
+      "state": {
+        "open_file": "/testbed/src/sqlfluff/rules/L060.py",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: The edit looks correct.\nStep 2: Now let me run the test script again to verify that the fix works correctly and produces specific error messages."
+    },
+    {
+      "action": "ls -la /testbed/test/\n",
+      "observation": "total 64\ndrwxrwxrwx  1 root root 4096 Apr 17 23:22 .\ndrwxrwxrwx  1 root root 4096 Apr 17 23:22 ..\n-rw-r--r--  1 root root   25 Nov 22  2024 __init__.py\ndrwxr-xr-x  2 root root 4096 Apr 17 23:22 __pycache__\ndrwxrwxrwx  2 root root 4096 Nov 22  2024 api\ndrwxrwxrwx  2 root root 4096 Nov 22  2024 cli\n-rw-r--r--  1 root root 7327 Nov 22  2024 conftest.py\ndrwxrwxrwx  5 root root 4096 Nov 22  2024 core\ndrwxrwxrwx  2 root root 4096 Nov 22  2024 dialects\n-rw-r--r--  1 root root 1287 Nov 22  2024 diff_quality_plugin_test.py\ndrwxrwxrwx 10 root root 4096 Nov 22  2024 fixtures\n-rw-r--r--  1 root root 1797 Nov 22  2024 generate_parse_fixture_yml.py\ndrwxrwxrwx  2 root root 4096 Nov 22  2024 rules\n-rw-r--r--  1 root root 2520 Nov 22  2024 test_testing.py\n",
+      "response": "Step 1: Let me look at the test directory structure to understand how tests are organized.\n\n```\nls -la /testbed/test/\n```\n",
+      "state": {
+        "open_file": "/testbed/test/fixtures/rules/std_rule_cases/L060.yml",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: Let me look at the test directory structure to understand how tests are organized."
+    },
+    {
+      "action": "ls -la /testbed/test/rules/\n",
+      "observation": "total 84\ndrwxrwxrwx 2 root root 4096 Nov 22  2024 .\ndrwxrwxrwx 1 root root 4096 Apr 17 23:22 ..\n-rw-r--r-- 1 root root  763 Nov 22  2024 std_L003_L036_L039_combo_test.py\n-rw-r--r-- 1 root root 6036 Nov 22  2024 std_L003_test.py\n-rw-r--r-- 1 root root 1991 Nov 22  2024 std_L007_test.py\n-rw-r--r-- 1 root root  640 Nov 22  2024 std_L008_test.py\n-rw-r--r-- 1 root root  868 Nov 22  2024 std_L009_L052_test.py\n-rw-r--r-- 1 root root 1514 Nov 22  2024 std_L016_L36_combo_test.py\n-rw-r--r-- 1 root root 1394 Nov 22  2024 std_L019_test.py\n-rw-r--r-- 1 root root 2424 Nov 22  2024 std_L020_test.py\n-rw-r--r-- 1 root root  413 Nov 22  2024 std_L027_test.py\n-rw-r--r-- 1 root root  619 Nov 22  2024 std_L048_test.py\n-rw-r--r-- 1 root root 1651 Nov 22  2024 std_L054_test.py\n-rw-r--r-- 1 root root 5387 Nov 22  2024 std_fix_auto_test.py\n-rw-r--r-- 1 root root 4476 Nov 22  2024 std_roundtrip_test.py\n-rw-r--r-- 1 root root 4234 Nov 22  2024 std_test.py\n-rw-r--r-- 1 root root 1437 Nov 22  2024 yaml_test_cases_test.py\n",
+      "response": "Step 1: Let me look at the test/rules directory to see how rule tests are organized.\n\n```\nls -la /testbed/test/rules/\n```\n",
+      "state": {
+        "open_file": "/testbed/test/fixtures/rules/std_rule_cases/L060.yml",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: Let me look at the test/rules directory to see how rule tests are organized."
+    },
+    {
+      "action": "open \"/testbed/test/rules/yaml_test_cases_test.py\"\n",
+      "observation": "[File: /testbed/test/rules/yaml_test_cases_test.py (41 lines total)]\n1:\"\"\"Runs the rule test cases.\"\"\"\n2:import os\n3:import logging\n4:import pytest\n5:from sqlfluff.testing.rules import (\n6:    load_test_cases,\n7:    rules__test_helper,\n8:    get_rule_from_set,\n9:)\n10:from sqlfluff.core.rules.doc_decorators import is_fix_compatible\n11:from sqlfluff.core.config import FluffConfig\n12:\n13:ids, test_cases = load_test_cases(\n14:    test_cases_path=os.path.join(\"test/fixtures/rules/std_rule_cases\", \"*.yml\")\n15:)\n16:\n17:\n18:@pytest.mark.parametrize(\"test_case\", test_cases, ids=ids)\n19:def test__rule_test_case(test_case, caplog):\n20:    \"\"\"Run the tests.\"\"\"\n21:    with caplog.at_level(logging.DEBUG, logger=\"sqlfluff.rules\"):\n22:        res = rules__test_helper(test_case)\n23:        if res is not None and res != test_case.fail_str:\n24:            cfg = FluffConfig(configs=test_case.configs)\n25:            rule = get_rule_from_set(test_case.rule, config=cfg)\n26:            assert is_fix_compatible(\n27:                rule\n28:            ), f\"Rule {test_case.rule} returned fixes but does not specify \"\n29:            '\"@document_fix_compatible\".'\n30:\n31:\n32:def test__rule_test_global_config():\n33:    \"\"\"Test global config in rule test cases.\"\"\"\n34:    ids, test_cases = load_test_cases(\n35:        os.path.join(\"test/fixtures/rules/R001_global_config_test.yml\")\n36:    )\n37:    assert len(test_cases) == 2\n38:    # tc1: overwrites global config\n39:    assert test_cases[0].configs[\"core\"][\"dialect\"] == \"ansi\"\n40:    # tc2: global config is used\n41:    assert test_cases[1].configs[\"core\"][\"dialect\"] == \"exasol\"\n",
+      "response": "Step 1: Let me look at the yaml_test_cases_test.py to understand how YAML test cases are run.\n\n```\nopen \"/testbed/test/rules/yaml_test_cases_test.py\"\n```\n",
+      "state": {
+        "open_file": "/testbed/test/rules/yaml_test_cases_test.py",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: Let me look at the yaml_test_cases_test.py to understand how YAML test cases are run."
+    },
+    {
+      "action": "python -m pytest test/rules/yaml_test_cases_test.py -k \"L060\" -v\n",
+      "observation": "Test session starts (platform: linux, Python 3.9.20, pytest 8.3.3, pytest-sugar 1.0.0)\ncachedir: .pytest_cache\nhypothesis profile 'default' -> database=DirectoryBasedExampleDatabase(PosixPath('/testbed/.hypothesis/examples'))\nrootdir: /testbed\nconfigfile: pytest.ini\nplugins: sugar-1.0.0, hypothesis-6.119.3, cov-5.0.0, xdist-3.6.1\ncollecting ... \rcollected 728 items / 725 deselected / 3 selected                              \n\r\n\r test/rules/yaml_test_cases_test.py::test__rule_test_case[L060_test_pass_coalesce] ✓33% ███▍      \r\n\r test/rules/yaml_test_cases_test.py::test__rule_test_case[L060_test_fail_ifnull] ✓67% ██████▋   \r\n\r test/rules/yaml_test_cases_test.py::test__rule_test_case[L060_test_fail_nvl] ✓100% ██████████\n\nResults (0.74s):\n       3 passed\n     725 deselected\n",
+      "response": "Step 1: Now I understand the test structure.\nStep 2: Let me run the specific test for L060 to verify my changes don't break anything.\n\n```\npython -m pytest test/rules/yaml_test_cases_test.py -k \"L060\" -v\n```\n",
+      "state": {
+        "open_file": "/testbed/test/rules/yaml_test_cases_test.py",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: Now I understand the test structure.\nStep 2: Let me run the specific test for L060 to verify my changes don't break anything."
+    },
+    {
+      "action": "rm /testbed/test_l060.py\n",
+      "observation": "",
+      "response": "Step 1: The fix is working correctly.\nStep 2: Both IFNULL and NVL now return specific error messages.\nStep 3: Let me clean up the test file I created and then verify the final state of the fix.\n\n```\nrm /testbed/test_l060.py\n```\n",
+      "state": {
+        "open_file": "/testbed/test/rules/yaml_test_cases_test.py",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: The fix is working correctly.\nStep 2: Both IFNULL and NVL now return specific error messages.\nStep 3: Let me clean up the test file I created and then verify the final state of the fix."
+    },
+    {
+      "action": "python -m pytest test/rules/yaml_test_cases_test.py -k \"L060\" -v\n",
+      "observation": "Test session starts (platform: linux, Python 3.9.20, pytest 8.3.3, pytest-sugar 1.0.0)\ncachedir: .pytest_cache\nhypothesis profile 'default' -> database=DirectoryBasedExampleDatabase(PosixPath('/testbed/.hypothesis/examples'))\nrootdir: /testbed\nconfigfile: pytest.ini\nplugins: sugar-1.0.0, hypothesis-6.119.3, cov-5.0.0, xdist-3.6.1\ncollecting ... \rcollected 728 items / 725 deselected / 3 selected                              \n\r\n\r test/rules/yaml_test_cases_test.py::test__rule_test_case[L060_test_pass_coalesce] ✓33% ███▍      \r\n\r test/rules/yaml_test_cases_test.py::test__rule_test_case[L060_test_fail_ifnull] ✓67% ██████▋   \r\n\r test/rules/yaml_test_cases_test.py::test__rule_test_case[L060_test_fail_nvl] ✓100% ██████████\n\nResults (0.73s):\n       3 passed\n     725 deselected\n",
+      "response": "Step 1: The fix is complete.\nStep 2: The L060 rule now generates a specific error message based on which function (IFNULL or NVL) was used.\nStep 3: Let me run the tests one more time to make sure everything is still working correctly before submitting.\n\n```\npython -m pytest test/rules/yaml_test_cases_test.py -k \"L060\" -v\n```\n",
+      "state": {
+        "open_file": "/testbed/test/rules/yaml_test_cases_test.py",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: The fix is complete.\nStep 2: The L060 rule now generates a specific error message based on which function (IFNULL or NVL) was used.\nStep 3: Let me run the tests one more time to make sure everything is still working correctly before submitting."
+    },
+    {
+      "action": "submit\n",
+      "observation": "diff --git a/src/sqlfluff/rules/L060.py b/src/sqlfluff/rules/L060.py\nindex 836941edc..96e489171 100644\n--- a/src/sqlfluff/rules/L060.py\n+++ b/src/sqlfluff/rules/L060.py\n@@ -59,4 +59,6 @@ class Rule_L060(BaseRule):\n             ],\n         )\n \n-        return LintResult(context.segment, [fix])\n+        # Create a specific description based on the function used\n+        description = f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\"\n+        return LintResult(context.segment, [fix], description=description)\n",
+      "response": "Step 1: All tests pass and the fix is working correctly.\nStep 2: The L060 rule now generates specific error messages:\n- For IFNULL: \"Use 'COALESCE' instead of 'IFNULL'.\"\n- For NVL: \"Use 'COALESCE' instead of 'NVL'.\"\nStep 3: The fix is minimal and only modifies the L060.py file to add a description parameter to the LintResult.\nStep 4: I'm ready to submit the changes.\n\n```\nsubmit\n```\n",
+      "state": {
+        "open_file": "/testbed/test/rules/yaml_test_cases_test.py",
+        "working_dir": "/testbed"
+      },
+      "thought": "Step 1: All tests pass and the fix is working correctly.\nStep 2: The L060 rule now generates specific error messages:\n- For IFNULL: \"Use 'COALESCE' instead of 'IFNULL'.\"\n- For NVL: \"Use 'COALESCE' instead of 'NVL'.\"\nStep 3: The fix is minimal and only modifies the L060.py file to add a description parameter to the LintResult.\nStep 4: I'm ready to submit the changes."
+    }
+  ],
+  "history": [
+    {
+      "role": "system",
+      "content": "SETTING: You are an autonomous programmer, and you're working directly in the command line with a special interface.\n\nThe special interface consists of a file editor that shows you 100 lines of a file at a time.\nIn addition to typical bash commands, you can also use the following commands to help you navigate and edit files.\n\nCOMMANDS:\nbash:\n  docstring: runs the given command directly in bash\n  signature: <command>\n  arguments:\n    - command (string) [required]: The bash command to execute.\n\ngoto:\n  docstring: moves the window to show <line_number>\n  signature: goto <line_number>\n  arguments:\n    - line_number (integer) [required]: the line number to move the window to\n\nopen:\n  docstring: opens the file at the given path in the editor. If line_number is provided, the window will be move to include that line\n  signature: open \"<path>\" [<line_number>]\n  arguments:\n    - path (string) [required]: the path to the file to open\n    - line_number (integer) [optional]: the line number to move the window to (if not provided, the window will start at the top of the file)\n\ncreate:\n  docstring: creates and opens a new file with the given name\n  signature: create <filename>\n  arguments:\n    - filename (string) [required]: the name of the file to create\n\nscroll_up:\n  docstring: moves the window up 100 lines\n  signature: scroll_up\n\nscroll_down:\n  docstring: moves the window down 100 lines\n  signature: scroll_down\n\nfind_file:\n  docstring: finds all files with the given name or pattern in dir. If dir is not provided, searches in the current directory\n  signature: find_file <file_name> [<dir>]\n  arguments:\n    - file_name (string) [required]: the name of the file or pattern to search for. supports shell-style wildcards (e.g. *.py)\n    - dir (string) [optional]: the directory to search in (if not provided, searches in the current directory)\n\nsearch_dir:\n  docstring: searches for search_term in all files in dir. If dir is not provided, searches in the current directory\n  signature: search_dir <search_term> [<dir>]\n  arguments:\n    - search_term (string) [required]: the term to search for\n    - dir (string) [optional]: the directory to search in (if not provided, searches in the current directory)\n\nsearch_file:\n  docstring: searches for search_term in file. If file is not provided, searches in the current open file\n  signature: search_file <search_term> [<file>]\n  arguments:\n    - search_term (string) [required]: the term to search for\n    - file (string) [optional]: the file to search in (if not provided, searches in the current open file)\n\nedit:\n  docstring: Replaces lines <start_line> through <end_line> (inclusive) with the given text in the open file. All of the <replacement text> will be entered, so make sure your indentation is formatted properly.\nPlease note that THIS COMMAND REQUIRES PROPER INDENTATION. If you'd like to add the line '        print(x)' you must fully write that out, with all those spaces before the code!\n\n  signature: edit <start_line>:<end_line>\n<replacement_text>\nend_of_edit\n\n  arguments:\n    - start_line (integer) [required]: the line number to start the edit at\n    - end_line (integer) [required]: the line number to end the edit at (inclusive)\n    - replacement_text (string) [required]: the text to replace the current selection with\n\nsubmit:\n  docstring: submits the current file\n  signature: submit\n\n\n\nPlease note that THE EDIT COMMAND REQUIRES PROPER INDENTATION.\nIf you'd like to add the line '        print(x)' you must fully write that out, with all those spaces before the code! Indentation is important and code that is not indented correctly will fail and require fixing before it can be run.\n\nRESPONSE FORMAT:\nYour shell prompt is formatted as follows:\n(Open file: <path>) <cwd> $\n\nYou need to format your output using two fields; reasoning and command. Break down your reasoning process into small steps. Each step should represent a single, minimal reasoning action, and each step must logically follow the previous one. Use the following format for each step:\nStep i: [Your reasoning process in one cohesive response]\n\nYour output should always include _one_ reasoning and _one_ command field EXACTLY as in the following example:\nREASONING\nStep 1: Let me start by understanding the issue.\nStep 2: The problem is in the TSQL dialect of sqlfluff.\nStep 3: Rule L031 is incorrectly triggering the message \"Avoid using aliases in join condition.\"\nStep 4: This happens even when there is no join present.\nStep 5: A table alias used in a SELECT statement without any join should not trigger this rule.\nStep 6: Let me first explore the repository structure.\nStep 7: I want to understand how the repository is organized.\nStep 8: Then I can find the files relevant to rule L031.\n```\nls -a\n```\n\nYou should only include a *SINGLE* command in the command section and then wait for a response from the shell before continuing with more reasoning and commands. Everything you include in the REASONING section will be saved for future reference.\nIf you'd like to issue two commands at once, PLEASE DO NOT DO THAT! Please instead first submit just the first command, and then after receiving a response you'll be able to issue the second command.\nYou're free to use any other bash commands you want (e.g. find, grep, cat, ls, cd) in addition to the special commands listed above.\nHowever, the environment does NOT support interactive session commands (e.g. python, vim), so please do not invoke them.",
+      "agent": "main",
+      "message_type": "system_prompt"
+    },
+    {
+      "role": "user",
+      "content": "We're currently solving the following issue within our repository. Here's the issue text:\nISSUE:\nRule L060 could give a specific error message\nAt the moment rule L060 flags something like this:\n\n```\nL:  21 | P:   9 | L060 | Use 'COALESCE' instead of 'IFNULL' or 'NVL'.\n```\n\nSince we likely know the wrong word, it might be nice to actually flag that instead of both `IFNULL` and `NVL` - like most of the other rules do.\n\nThat is it should flag this:\n\n```\nL:  21 | P:   9 | L060 | Use 'COALESCE' instead of 'IFNULL'.\n```\n Or this:\n\n```\nL:  21 | P:   9 | L060 | Use 'COALESCE' instead of 'NVL'.\n```\n\nAs appropriate.\n\nWhat do you think @jpy-git ?\n\n\n\nINSTRUCTIONS:\nNow, you're going to solve this issue on your own. Your terminal session has started and you're in the repository's root directory. You can use any bash commands or the special interface to help you. Edit all the files you need to and run any checks or tests that you want.\nRemember, YOU CAN ONLY ENTER ONE COMMAND AT A TIME. You should always wait for feedback after every command.\nWhen you're satisfied with all of the changes you've made, you can submit your changes to the code base by simply running the submit command.\nNote however that you cannot use any interactive session commands (e.g. python, vim) in this environment, but you can write scripts and run them. E.g. you can write a python script and then run it with `python <script_name>.py`.\n\nNOTE ABOUT THE EDIT COMMAND: Indentation really matters! When editing a file, make sure to insert appropriate indentation before each line!\n\nIMPORTANT TIPS:\n1. Always start by trying to replicate the bug that the issues discusses.\n  If the issue includes code for reproducing the bug, we recommend that you re-implement that in your environment, and run it to make sure you can reproduce the bug.\n  Then start trying to fix it.\n  When you think you've fixed the bug, re-run the bug reproduction script to make sure that the bug has indeed been fixed.\n\n  If the bug reproduction script does not print anything when it successfully runs, we recommend adding a print(\"Script completed successfully, no errors.\") command at the end of the file,\n  so that you can be sure that the script indeed ran fine all the way through.\n\n2. If you run a command and it doesn't work, try running a different command. A command that did not work once will not work the second time unless you modify it!\n\n3. If you open a file and need to get to an area around a specific line that is not in the first 100 lines, say line 583, don't just use the scroll_down command multiple times. Instead, use the goto 583 command. It's much quicker.\n\n4. If the bug reproduction script requires inputting/reading a specific file, such as buggy-input.png, and you'd like to understand how to input that file, conduct a search in the existing repo code, to see whether someone else has already done that. Do this by running the command: find_file \"buggy-input.png\" If that doesn't work, use the linux 'find' command.\n\n5. Always make sure to look at the currently open file and the current working directory (which appears right after the currently open file). The currently open file might be in a different directory than the working directory! Note that some commands, such as 'create', open files, so they might change the current  open file.\n\n6. When editing files, it is easy to accidentally specify a wrong line number or to write code with incorrect indentation. Always check the code after you issue an edit to make sure that it reflects what you wanted to accomplish. If it didn't, issue another command to fix it.\n\n\n(Open file: n/a)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: I need to understand the issue.\nStep 2: Rule L060 currently gives a generic error message mentioning both 'IFNULL' and 'NVL', but it should be specific to which function was actually used.\nStep 3: Let me first explore the repository structure to find where this rule is defined.\nStep 4: I'll search for files containing \"L060\" to locate the relevant code.\n\n```\nfind_file \"L060\"\n```\n",
+      "thought": "Step 1: I need to understand the issue.\nStep 2: Rule L060 currently gives a generic error message mentioning both 'IFNULL' and 'NVL', but it should be specific to which function was actually used.\nStep 3: Let me first explore the repository structure to find where this rule is defined.\nStep 4: I'll search for files containing \"L060\" to locate the relevant code.",
+      "action": "find_file \"L060\"\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "No matches found for \"L060\" in /testbed\n\n(Open file: n/a)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: The find_file command searches for filenames, not content.\nStep 2: I need to search for \"L060\" in the file contents.\nStep 3: Let me use search_dir to find where L060 is defined in the codebase.\n\n```\nsearch_dir \"L060\"\n```\n",
+      "thought": "Step 1: The find_file command searches for filenames, not content.\nStep 2: I need to search for \"L060\" in the file contents.\nStep 3: Let me use search_dir to find where L060 is defined in the codebase.",
+      "action": "search_dir \"L060\"\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "Found 4 matches for \"L060\" in /testbed:\n/testbed/src/sqlfluff.egg-info/SOURCES.txt (1 matches)\n/testbed/src/sqlfluff/rules/L060.py (2 matches)\n/testbed/test/fixtures/rules/std_rule_cases/L060.yml (1 matches)\nEnd of matches for \"L060\" in /testbed\n\n(Open file: n/a)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: I found the L060 rule file at `/testbed/src/sqlfluff/rules/L060.py`.\nStep 2: Let me open it to see the current implementation and understand how the error message is generated.\n\n```\nopen \"/testbed/src/sqlfluff/rules/L060.py\"\n```\n",
+      "thought": "Step 1: I found the L060 rule file at `/testbed/src/sqlfluff/rules/L060.py`.\nStep 2: Let me open it to see the current implementation and understand how the error message is generated.",
+      "action": "open \"/testbed/src/sqlfluff/rules/L060.py\"\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "[File: /testbed/src/sqlfluff/rules/L060.py (62 lines total)]\n1:\"\"\"Implementation of Rule L060.\"\"\"\n2:\n3:from typing import Optional\n4:\n5:from sqlfluff.core.parser.segments.raw import CodeSegment\n6:from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext\n7:from sqlfluff.core.rules.doc_decorators import document_fix_compatible\n8:\n9:\n10:@document_fix_compatible\n11:class Rule_L060(BaseRule):\n12:    \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\n13:\n14:    | **Anti-pattern**\n15:    | ``IFNULL`` or ``NVL`` are used to fill ``NULL`` values.\n16:\n17:    .. code-block:: sql\n18:\n19:        SELECT ifnull(foo, 0) AS bar,\n20:        FROM baz;\n21:\n22:        SELECT nvl(foo, 0) AS bar,\n23:        FROM baz;\n24:\n25:    | **Best practice**\n26:    | Use ``COALESCE`` instead.\n27:    | ``COALESCE`` is universally supported,\n28:    | whereas Redshift doesn't support ``IFNULL``\n29:    | and BigQuery doesn't support ``NVL``.\n30:    | Additionally ``COALESCE`` is more flexible\n31:    | and accepts an arbitrary number of arguments.\n32:\n33:    .. code-block:: sql\n34:\n35:        SELECT coalesce(foo, 0) AS bar,\n36:        FROM baz;\n37:\n38:    \"\"\"\n39:\n40:    def _eval(self, context: RuleContext) -> Optional[LintResult]:\n41:        \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\"\"\"\n42:        # We only care about function names.\n43:        if context.segment.name != \"function_name_identifier\":\n44:            return None\n45:\n46:        # Only care if the function is ``IFNULL`` or ``NVL``.\n47:        if context.segment.raw_upper not in {\"IFNULL\", \"NVL\"}:\n48:            return None\n49:\n50:        # Create fix to replace ``IFNULL`` or ``NVL`` with ``COALESCE``.\n51:        fix = LintFix.replace(\n52:            context.segment,\n53:            [\n54:                CodeSegment(\n55:                    raw=\"COALESCE\",\n56:                    name=\"function_name_identifier\",\n57:                    type=\"function_name_identifier\",\n58:                )\n59:            ],\n60:        )\n61:\n62:        return LintResult(context.segment, [fix])\n\n(Open file: /testbed/src/sqlfluff/rules/L060.py)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: Now I understand the issue.\nStep 2: The L060 rule currently returns a generic message \"Use 'COALESCE' instead of 'IFNULL' or 'NVL'.\" but should be specific to which function was used.\nStep 3: Let me create a test script to reproduce the current behavior and verify the issue.\n\n```\ncat > /testbed/test_l060.py << 'EOF'\nimport sqlfluff\n\n# Test IFNULL\nsql_ifnull = \"SELECT ifnull(foo, 0) AS bar FROM baz;\"\nresult_ifnull = sqlfluff.lint(sql_ifnull, rules=[\"L060\"])\nprint(\"IFNULL lint result:\")\nfor r in result_ifnull:\n    print(f\"  {r}\")\n\n# Test NVL\nsql_nvl = \"SELECT nvl(foo, 0) AS bar FROM baz;\"\nresult_nvl = sqlfluff.lint(sql_nvl, rules=[\"L060\"])\nprint(\"\\nNVL lint result:\")\nfor r in result_nvl:\n    print(f\"  {r}\")\n\nprint(\"\\nScript completed successfully, no errors.\")\nEOF\n```\n",
+      "thought": "Step 1: Now I understand the issue.\nStep 2: The L060 rule currently returns a generic message \"Use 'COALESCE' instead of 'IFNULL' or 'NVL'.\" but should be specific to which function was used.\nStep 3: Let me create a test script to reproduce the current behavior and verify the issue.",
+      "action": "cat > /testbed/test_l060.py << 'EOF'\nimport sqlfluff\n\n# Test IFNULL\nsql_ifnull = \"SELECT ifnull(foo, 0) AS bar FROM baz;\"\nresult_ifnull = sqlfluff.lint(sql_ifnull, rules=[\"L060\"])\nprint(\"IFNULL lint result:\")\nfor r in result_ifnull:\n    print(f\"  {r}\")\n\n# Test NVL\nsql_nvl = \"SELECT nvl(foo, 0) AS bar FROM baz;\"\nresult_nvl = sqlfluff.lint(sql_nvl, rules=[\"L060\"])\nprint(\"\\nNVL lint result:\")\nfor r in result_nvl:\n    print(f\"  {r}\")\n\nprint(\"\\nScript completed successfully, no errors.\")\nEOF\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "Your command ran successfully and did not produce any output.\n(Open file: /testbed/test/fixtures/rules/std_rule_cases/L060.yml)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: I've created a test script to reproduce the issue.\nStep 2: Now let me run it to see the current behavior.\n\n```\npython /testbed/test_l060.py\n```\n",
+      "thought": "Step 1: I've created a test script to reproduce the issue.\nStep 2: Now let me run it to see the current behavior.",
+      "action": "python /testbed/test_l060.py\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "IFNULL lint result:\n  {'line_no': 1, 'line_pos': 8, 'code': 'L060', 'description': \"Use 'COALESCE' instead of 'IFNULL' or 'NVL'.\"}\n\nNVL lint result:\n  {'line_no': 1, 'line_pos': 8, 'code': 'L060', 'description': \"Use 'COALESCE' instead of 'IFNULL' or 'NVL'.\"}\n\nScript completed successfully, no errors.\n\n(Open file: /testbed/test/fixtures/rules/std_rule_cases/L060.yml)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: I've confirmed the issue.\nStep 2: Both IFNULL and NVL return the same generic message \"Use 'COALESCE' instead of 'IFNULL' or 'NVL'.\" when they should return specific messages.\nStep 3: Now let me look at the L060.py file again to understand how to fix this.\n\n```\nopen \"/testbed/src/sqlfluff/rules/L060.py\"\n```\n",
+      "thought": "Step 1: I've confirmed the issue.\nStep 2: Both IFNULL and NVL return the same generic message \"Use 'COALESCE' instead of 'IFNULL' or 'NVL'.\" when they should return specific messages.\nStep 3: Now let me look at the L060.py file again to understand how to fix this.",
+      "action": "open \"/testbed/src/sqlfluff/rules/L060.py\"\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "[File: /testbed/src/sqlfluff/rules/L060.py (62 lines total)]\n1:\"\"\"Implementation of Rule L060.\"\"\"\n2:\n3:from typing import Optional\n4:\n5:from sqlfluff.core.parser.segments.raw import CodeSegment\n6:from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext\n7:from sqlfluff.core.rules.doc_decorators import document_fix_compatible\n8:\n9:\n10:@document_fix_compatible\n11:class Rule_L060(BaseRule):\n12:    \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\n13:\n14:    | **Anti-pattern**\n15:    | ``IFNULL`` or ``NVL`` are used to fill ``NULL`` values.\n16:\n17:    .. code-block:: sql\n18:\n19:        SELECT ifnull(foo, 0) AS bar,\n20:        FROM baz;\n21:\n22:        SELECT nvl(foo, 0) AS bar,\n23:        FROM baz;\n24:\n25:    | **Best practice**\n26:    | Use ``COALESCE`` instead.\n27:    | ``COALESCE`` is universally supported,\n28:    | whereas Redshift doesn't support ``IFNULL``\n29:    | and BigQuery doesn't support ``NVL``.\n30:    | Additionally ``COALESCE`` is more flexible\n31:    | and accepts an arbitrary number of arguments.\n32:\n33:    .. code-block:: sql\n34:\n35:        SELECT coalesce(foo, 0) AS bar,\n36:        FROM baz;\n37:\n38:    \"\"\"\n39:\n40:    def _eval(self, context: RuleContext) -> Optional[LintResult]:\n41:        \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\"\"\"\n42:        # We only care about function names.\n43:        if context.segment.name != \"function_name_identifier\":\n44:            return None\n45:\n46:        # Only care if the function is ``IFNULL`` or ``NVL``.\n47:        if context.segment.raw_upper not in {\"IFNULL\", \"NVL\"}:\n48:            return None\n49:\n50:        # Create fix to replace ``IFNULL`` or ``NVL`` with ``COALESCE``.\n51:        fix = LintFix.replace(\n52:            context.segment,\n53:            [\n54:                CodeSegment(\n55:                    raw=\"COALESCE\",\n56:                    name=\"function_name_identifier\",\n57:                    type=\"function_name_identifier\",\n58:                )\n59:            ],\n60:        )\n61:\n62:        return LintResult(context.segment, [fix])\n\n(Open file: /testbed/src/sqlfluff/rules/L060.py)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: I can see the issue clearly now.\nStep 2: On line 62, the LintResult is created without a description parameter, so it uses the default rule description.\nStep 3: I need to modify the code to pass a specific description based on whether the segment is \"IFNULL\" or \"NVL\".\nStep 4: I'll edit line 62 to add a description that uses context.segment.raw_upper to create a specific message.\n\n```\nedit 62:62\n        # Create a specific description based on the function used\n        description = f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\"\n        return LintResult(context.segment, [fix], description=description)\nend_of_edit\n```\n",
+      "thought": "Step 1: I can see the issue clearly now.\nStep 2: On line 62, the LintResult is created without a description parameter, so it uses the default rule description.\nStep 3: I need to modify the code to pass a specific description based on whether the segment is \"IFNULL\" or \"NVL\".\nStep 4: I'll edit line 62 to add a description that uses context.segment.raw_upper to create a specific message.",
+      "action": "edit 62:62\n        # Create a specific description based on the function used\n        description = f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\"\n        return LintResult(context.segment, [fix], description=description)\nend_of_edit\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "File updated. Please review the changes and make sure they are correct\n(correct indentation, no duplicate lines, etc). Edit the file again if necessary.\n[File: /testbed/src/sqlfluff/rules/L060.py (64 lines total)]\n1:\"\"\"Implementation of Rule L060.\"\"\"\n2:\n3:from typing import Optional\n4:\n5:from sqlfluff.core.parser.segments.raw import CodeSegment\n6:from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext\n7:from sqlfluff.core.rules.doc_decorators import document_fix_compatible\n8:\n9:\n10:@document_fix_compatible\n11:class Rule_L060(BaseRule):\n12:    \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\n13:\n14:    | **Anti-pattern**\n15:    | ``IFNULL`` or ``NVL`` are used to fill ``NULL`` values.\n16:\n17:    .. code-block:: sql\n18:\n19:        SELECT ifnull(foo, 0) AS bar,\n20:        FROM baz;\n21:\n22:        SELECT nvl(foo, 0) AS bar,\n23:        FROM baz;\n24:\n25:    | **Best practice**\n26:    | Use ``COALESCE`` instead.\n27:    | ``COALESCE`` is universally supported,\n28:    | whereas Redshift doesn't support ``IFNULL``\n29:    | and BigQuery doesn't support ``NVL``.\n30:    | Additionally ``COALESCE`` is more flexible\n31:    | and accepts an arbitrary number of arguments.\n32:\n33:    .. code-block:: sql\n34:\n35:        SELECT coalesce(foo, 0) AS bar,\n36:        FROM baz;\n37:\n38:    \"\"\"\n39:\n40:    def _eval(self, context: RuleContext) -> Optional[LintResult]:\n41:        \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\"\"\"\n42:        # We only care about function names.\n43:        if context.segment.name != \"function_name_identifier\":\n44:            return None\n45:\n46:        # Only care if the function is ``IFNULL`` or ``NVL``.\n47:        if context.segment.raw_upper not in {\"IFNULL\", \"NVL\"}:\n48:            return None\n49:\n50:        # Create fix to replace ``IFNULL`` or ``NVL`` with ``COALESCE``.\n51:        fix = LintFix.replace(\n52:            context.segment,\n53:            [\n54:                CodeSegment(\n55:                    raw=\"COALESCE\",\n56:                    name=\"function_name_identifier\",\n57:                    type=\"function_name_identifier\",\n58:                )\n59:            ],\n60:        )\n61:\n62:        # Create a specific description based on the function used\n63:        description = f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\"\n64:        return LintResult(context.segment, [fix], description=description)\n\n(Open file: /testbed/src/sqlfluff/rules/L060.py)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: The edit looks correct.\nStep 2: Now let me run the test script again to verify that the fix works correctly and produces specific error messages.\n\n```\npython /testbed/test_l060.py\n```\n",
+      "thought": "Step 1: The edit looks correct.\nStep 2: Now let me run the test script again to verify that the fix works correctly and produces specific error messages.",
+      "action": "python /testbed/test_l060.py\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "IFNULL lint result:\n  {'line_no': 1, 'line_pos': 8, 'code': 'L060', 'description': \"Use 'COALESCE' instead of 'IFNULL'.\"}\n\nNVL lint result:\n  {'line_no': 1, 'line_pos': 8, 'code': 'L060', 'description': \"Use 'COALESCE' instead of 'NVL'.\"}\n\nScript completed successfully, no errors.\n\n(Open file: /testbed/src/sqlfluff/rules/L060.py)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: Let me look at the test directory structure to understand how tests are organized.\n\n```\nls -la /testbed/test/\n```\n",
+      "thought": "Step 1: Let me look at the test directory structure to understand how tests are organized.",
+      "action": "ls -la /testbed/test/\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "total 64\ndrwxrwxrwx  1 root root 4096 Apr 17 23:22 .\ndrwxrwxrwx  1 root root 4096 Apr 17 23:22 ..\n-rw-r--r--  1 root root   25 Nov 22  2024 __init__.py\ndrwxr-xr-x  2 root root 4096 Apr 17 23:22 __pycache__\ndrwxrwxrwx  2 root root 4096 Nov 22  2024 api\ndrwxrwxrwx  2 root root 4096 Nov 22  2024 cli\n-rw-r--r--  1 root root 7327 Nov 22  2024 conftest.py\ndrwxrwxrwx  5 root root 4096 Nov 22  2024 core\ndrwxrwxrwx  2 root root 4096 Nov 22  2024 dialects\n-rw-r--r--  1 root root 1287 Nov 22  2024 diff_quality_plugin_test.py\ndrwxrwxrwx 10 root root 4096 Nov 22  2024 fixtures\n-rw-r--r--  1 root root 1797 Nov 22  2024 generate_parse_fixture_yml.py\ndrwxrwxrwx  2 root root 4096 Nov 22  2024 rules\n-rw-r--r--  1 root root 2520 Nov 22  2024 test_testing.py\n\n(Open file: /testbed/test/fixtures/rules/std_rule_cases/L060.yml)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: Let me look at the test/rules directory to see how rule tests are organized.\n\n```\nls -la /testbed/test/rules/\n```\n",
+      "thought": "Step 1: Let me look at the test/rules directory to see how rule tests are organized.",
+      "action": "ls -la /testbed/test/rules/\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "total 84\ndrwxrwxrwx 2 root root 4096 Nov 22  2024 .\ndrwxrwxrwx 1 root root 4096 Apr 17 23:22 ..\n-rw-r--r-- 1 root root  763 Nov 22  2024 std_L003_L036_L039_combo_test.py\n-rw-r--r-- 1 root root 6036 Nov 22  2024 std_L003_test.py\n-rw-r--r-- 1 root root 1991 Nov 22  2024 std_L007_test.py\n-rw-r--r-- 1 root root  640 Nov 22  2024 std_L008_test.py\n-rw-r--r-- 1 root root  868 Nov 22  2024 std_L009_L052_test.py\n-rw-r--r-- 1 root root 1514 Nov 22  2024 std_L016_L36_combo_test.py\n-rw-r--r-- 1 root root 1394 Nov 22  2024 std_L019_test.py\n-rw-r--r-- 1 root root 2424 Nov 22  2024 std_L020_test.py\n-rw-r--r-- 1 root root  413 Nov 22  2024 std_L027_test.py\n-rw-r--r-- 1 root root  619 Nov 22  2024 std_L048_test.py\n-rw-r--r-- 1 root root 1651 Nov 22  2024 std_L054_test.py\n-rw-r--r-- 1 root root 5387 Nov 22  2024 std_fix_auto_test.py\n-rw-r--r-- 1 root root 4476 Nov 22  2024 std_roundtrip_test.py\n-rw-r--r-- 1 root root 4234 Nov 22  2024 std_test.py\n-rw-r--r-- 1 root root 1437 Nov 22  2024 yaml_test_cases_test.py\n\n(Open file: /testbed/test/fixtures/rules/std_rule_cases/L060.yml)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: Let me look at the yaml_test_cases_test.py to understand how YAML test cases are run.\n\n```\nopen \"/testbed/test/rules/yaml_test_cases_test.py\"\n```\n",
+      "thought": "Step 1: Let me look at the yaml_test_cases_test.py to understand how YAML test cases are run.",
+      "action": "open \"/testbed/test/rules/yaml_test_cases_test.py\"\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "[File: /testbed/test/rules/yaml_test_cases_test.py (41 lines total)]\n1:\"\"\"Runs the rule test cases.\"\"\"\n2:import os\n3:import logging\n4:import pytest\n5:from sqlfluff.testing.rules import (\n6:    load_test_cases,\n7:    rules__test_helper,\n8:    get_rule_from_set,\n9:)\n10:from sqlfluff.core.rules.doc_decorators import is_fix_compatible\n11:from sqlfluff.core.config import FluffConfig\n12:\n13:ids, test_cases = load_test_cases(\n14:    test_cases_path=os.path.join(\"test/fixtures/rules/std_rule_cases\", \"*.yml\")\n15:)\n16:\n17:\n18:@pytest.mark.parametrize(\"test_case\", test_cases, ids=ids)\n19:def test__rule_test_case(test_case, caplog):\n20:    \"\"\"Run the tests.\"\"\"\n21:    with caplog.at_level(logging.DEBUG, logger=\"sqlfluff.rules\"):\n22:        res = rules__test_helper(test_case)\n23:        if res is not None and res != test_case.fail_str:\n24:            cfg = FluffConfig(configs=test_case.configs)\n25:            rule = get_rule_from_set(test_case.rule, config=cfg)\n26:            assert is_fix_compatible(\n27:                rule\n28:            ), f\"Rule {test_case.rule} returned fixes but does not specify \"\n29:            '\"@document_fix_compatible\".'\n30:\n31:\n32:def test__rule_test_global_config():\n33:    \"\"\"Test global config in rule test cases.\"\"\"\n34:    ids, test_cases = load_test_cases(\n35:        os.path.join(\"test/fixtures/rules/R001_global_config_test.yml\")\n36:    )\n37:    assert len(test_cases) == 2\n38:    # tc1: overwrites global config\n39:    assert test_cases[0].configs[\"core\"][\"dialect\"] == \"ansi\"\n40:    # tc2: global config is used\n41:    assert test_cases[1].configs[\"core\"][\"dialect\"] == \"exasol\"\n\n(Open file: /testbed/test/rules/yaml_test_cases_test.py)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: Now I understand the test structure.\nStep 2: Let me run the specific test for L060 to verify my changes don't break anything.\n\n```\npython -m pytest test/rules/yaml_test_cases_test.py -k \"L060\" -v\n```\n",
+      "thought": "Step 1: Now I understand the test structure.\nStep 2: Let me run the specific test for L060 to verify my changes don't break anything.",
+      "action": "python -m pytest test/rules/yaml_test_cases_test.py -k \"L060\" -v\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "Test session starts (platform: linux, Python 3.9.20, pytest 8.3.3, pytest-sugar 1.0.0)\ncachedir: .pytest_cache\nhypothesis profile 'default' -> database=DirectoryBasedExampleDatabase(PosixPath('/testbed/.hypothesis/examples'))\nrootdir: /testbed\nconfigfile: pytest.ini\nplugins: sugar-1.0.0, hypothesis-6.119.3, cov-5.0.0, xdist-3.6.1\ncollecting ... \rcollected 728 items / 725 deselected / 3 selected                              \n\r\n\r test/rules/yaml_test_cases_test.py::test__rule_test_case[L060_test_pass_coalesce] ✓33% ███▍      \r\n\r test/rules/yaml_test_cases_test.py::test__rule_test_case[L060_test_fail_ifnull] ✓67% ██████▋   \r\n\r test/rules/yaml_test_cases_test.py::test__rule_test_case[L060_test_fail_nvl] ✓100% ██████████\n\nResults (0.74s):\n       3 passed\n     725 deselected\n\n(Open file: /testbed/test/rules/yaml_test_cases_test.py)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: The fix is working correctly.\nStep 2: Both IFNULL and NVL now return specific error messages.\nStep 3: Let me clean up the test file I created and then verify the final state of the fix.\n\n```\nrm /testbed/test_l060.py\n```\n",
+      "thought": "Step 1: The fix is working correctly.\nStep 2: Both IFNULL and NVL now return specific error messages.\nStep 3: Let me clean up the test file I created and then verify the final state of the fix.",
+      "action": "rm /testbed/test_l060.py\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "Your command ran successfully and did not produce any output.\n(Open file: /testbed/test/rules/yaml_test_cases_test.py)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: The fix is complete.\nStep 2: The L060 rule now generates a specific error message based on which function (IFNULL or NVL) was used.\nStep 3: Let me run the tests one more time to make sure everything is still working correctly before submitting.\n\n```\npython -m pytest test/rules/yaml_test_cases_test.py -k \"L060\" -v\n```\n",
+      "thought": "Step 1: The fix is complete.\nStep 2: The L060 rule now generates a specific error message based on which function (IFNULL or NVL) was used.\nStep 3: Let me run the tests one more time to make sure everything is still working correctly before submitting.",
+      "action": "python -m pytest test/rules/yaml_test_cases_test.py -k \"L060\" -v\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "Test session starts (platform: linux, Python 3.9.20, pytest 8.3.3, pytest-sugar 1.0.0)\ncachedir: .pytest_cache\nhypothesis profile 'default' -> database=DirectoryBasedExampleDatabase(PosixPath('/testbed/.hypothesis/examples'))\nrootdir: /testbed\nconfigfile: pytest.ini\nplugins: sugar-1.0.0, hypothesis-6.119.3, cov-5.0.0, xdist-3.6.1\ncollecting ... \rcollected 728 items / 725 deselected / 3 selected                              \n\r\n\r test/rules/yaml_test_cases_test.py::test__rule_test_case[L060_test_pass_coalesce] ✓33% ███▍      \r\n\r test/rules/yaml_test_cases_test.py::test__rule_test_case[L060_test_fail_ifnull] ✓67% ██████▋   \r\n\r test/rules/yaml_test_cases_test.py::test__rule_test_case[L060_test_fail_nvl] ✓100% ██████████\n\nResults (0.73s):\n       3 passed\n     725 deselected\n\n(Open file: /testbed/test/rules/yaml_test_cases_test.py)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    },
+    {
+      "role": "assistant",
+      "content": "Step 1: All tests pass and the fix is working correctly.\nStep 2: The L060 rule now generates specific error messages:\n- For IFNULL: \"Use 'COALESCE' instead of 'IFNULL'.\"\n- For NVL: \"Use 'COALESCE' instead of 'NVL'.\"\nStep 3: The fix is minimal and only modifies the L060.py file to add a description parameter to the LintResult.\nStep 4: I'm ready to submit the changes.\n\n```\nsubmit\n```\n",
+      "thought": "Step 1: All tests pass and the fix is working correctly.\nStep 2: The L060 rule now generates specific error messages:\n- For IFNULL: \"Use 'COALESCE' instead of 'IFNULL'.\"\n- For NVL: \"Use 'COALESCE' instead of 'NVL'.\"\nStep 3: The fix is minimal and only modifies the L060.py file to add a description parameter to the LintResult.\nStep 4: I'm ready to submit the changes.",
+      "action": "submit\n",
+      "agent": "main",
+      "tool_calls": null,
+      "message_type": "action",
+      "thinking_blocks": []
+    },
+    {
+      "role": "user",
+      "content": "diff --git a/src/sqlfluff/rules/L060.py b/src/sqlfluff/rules/L060.py\nindex 836941edc..96e489171 100644\n--- a/src/sqlfluff/rules/L060.py\n+++ b/src/sqlfluff/rules/L060.py\n@@ -59,4 +59,6 @@ class Rule_L060(BaseRule):\n             ],\n         )\n \n-        return LintResult(context.segment, [fix])\n+        # Create a specific description based on the function used\n+        description = f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\"\n+        return LintResult(context.segment, [fix], description=description)\n\n(Open file: /testbed/test/rules/yaml_test_cases_test.py)\n(Current directory: /testbed)\nbash-$",
+      "agent": "main",
+      "message_type": "observation"
+    }
+  ],
+  "info": {
+    "swe_agent_hash": "unavailable",
+    "swe_agent_version": "1.1.0",
+    "swe_rex_version": "1.4.0",
+    "swe_rex_hash": "unavailable",
+    "submission": "diff --git a/src/sqlfluff/rules/L060.py b/src/sqlfluff/rules/L060.py\nindex 836941edc..96e489171 100644\n--- a/src/sqlfluff/rules/L060.py\n+++ b/src/sqlfluff/rules/L060.py\n@@ -59,4 +59,6 @@ class Rule_L060(BaseRule):\n             ],\n         )\n \n-        return LintResult(context.segment, [fix])\n+        # Create a specific description based on the function used\n+        description = f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\"\n+        return LintResult(context.segment, [fix], description=description)\n",
+    "exit_status": "submitted",
+    "edited_files30": "[File: src/sqlfluff/rules/L060.py]\n[28 lines above omitted]\n    29:     | and BigQuery doesn't support ``NVL``.\n    30:     | Additionally ``COALESCE`` is more flexible\n    31:     | and accepts an arbitrary number of arguments.\n    32: \n    33:     .. code-block:: sql\n    34: \n    35:         SELECT coalesce(foo, 0) AS bar,\n    36:         FROM baz;\n    37: \n    38:     \"\"\"\n    39: \n    40:     def _eval(self, context: RuleContext) -> Optional[LintResult]:\n    41:         \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\"\"\"\n    42:         # We only care about function names.\n    43:         if context.segment.name != \"function_name_identifier\":\n    44:             return None\n    45: \n    46:         # Only care if the function is ``IFNULL`` or ``NVL``.\n    47:         if context.segment.raw_upper not in {\"IFNULL\", \"NVL\"}:\n    48:             return None\n    49: \n    50:         # Create fix to replace ``IFNULL`` or ``NVL`` with ``COALESCE``.\n    51:         fix = LintFix.replace(\n    52:             context.segment,\n    53:             [\n    54:                 CodeSegment(\n    55:                     raw=\"COALESCE\",\n    56:                     name=\"function_name_identifier\",\n    57:                     type=\"function_name_identifier\",\n    58:                 )\n    59:             ],\n    60:         )\n    61: \n    62:         # Create a specific description based on the function used\n    63:         description = f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\"\n    64:         return LintResult(context.segment, [fix], description=description)",
+    "edited_files50": "[File: src/sqlfluff/rules/L060.py]\n[8 lines above omitted]\n     9: \n    10: @document_fix_compatible\n    11: class Rule_L060(BaseRule):\n    12:     \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\n    13: \n    14:     | **Anti-pattern**\n    15:     | ``IFNULL`` or ``NVL`` are used to fill ``NULL`` values.\n    16: \n    17:     .. code-block:: sql\n    18: \n    19:         SELECT ifnull(foo, 0) AS bar,\n    20:         FROM baz;\n    21: \n    22:         SELECT nvl(foo, 0) AS bar,\n    23:         FROM baz;\n    24: \n    25:     | **Best practice**\n    26:     | Use ``COALESCE`` instead.\n    27:     | ``COALESCE`` is universally supported,\n    28:     | whereas Redshift doesn't support ``IFNULL``\n    29:     | and BigQuery doesn't support ``NVL``.\n    30:     | Additionally ``COALESCE`` is more flexible\n    31:     | and accepts an arbitrary number of arguments.\n    32: \n    33:     .. code-block:: sql\n    34: \n    35:         SELECT coalesce(foo, 0) AS bar,\n    36:         FROM baz;\n    37: \n    38:     \"\"\"\n    39: \n    40:     def _eval(self, context: RuleContext) -> Optional[LintResult]:\n    41:         \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\"\"\"\n    42:         # We only care about function names.\n    43:         if context.segment.name != \"function_name_identifier\":\n    44:             return None\n    45: \n    46:         # Only care if the function is ``IFNULL`` or ``NVL``.\n    47:         if context.segment.raw_upper not in {\"IFNULL\", \"NVL\"}:\n    48:             return None\n    49: \n    50:         # Create fix to replace ``IFNULL`` or ``NVL`` with ``COALESCE``.\n    51:         fix = LintFix.replace(\n    52:             context.segment,\n    53:             [\n    54:                 CodeSegment(\n    55:                     raw=\"COALESCE\",\n    56:                     name=\"function_name_identifier\",\n    57:                     type=\"function_name_identifier\",\n    58:                 )\n    59:             ],\n    60:         )\n    61: \n    62:         # Create a specific description based on the function used\n    63:         description = f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\"\n    64:         return LintResult(context.segment, [fix], description=description)",
+    "edited_files70": "[File: src/sqlfluff/rules/L060.py]\n     1: \"\"\"Implementation of Rule L060.\"\"\"\n     2: \n     3: from typing import Optional\n     4: \n     5: from sqlfluff.core.parser.segments.raw import CodeSegment\n     6: from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext\n     7: from sqlfluff.core.rules.doc_decorators import document_fix_compatible\n     8: \n     9: \n    10: @document_fix_compatible\n    11: class Rule_L060(BaseRule):\n    12:     \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\n    13: \n    14:     | **Anti-pattern**\n    15:     | ``IFNULL`` or ``NVL`` are used to fill ``NULL`` values.\n    16: \n    17:     .. code-block:: sql\n    18: \n    19:         SELECT ifnull(foo, 0) AS bar,\n    20:         FROM baz;\n    21: \n    22:         SELECT nvl(foo, 0) AS bar,\n    23:         FROM baz;\n    24: \n    25:     | **Best practice**\n    26:     | Use ``COALESCE`` instead.\n    27:     | ``COALESCE`` is universally supported,\n    28:     | whereas Redshift doesn't support ``IFNULL``\n    29:     | and BigQuery doesn't support ``NVL``.\n    30:     | Additionally ``COALESCE`` is more flexible\n    31:     | and accepts an arbitrary number of arguments.\n    32: \n    33:     .. code-block:: sql\n    34: \n    35:         SELECT coalesce(foo, 0) AS bar,\n    36:         FROM baz;\n    37: \n    38:     \"\"\"\n    39: \n    40:     def _eval(self, context: RuleContext) -> Optional[LintResult]:\n    41:         \"\"\"Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.\"\"\"\n    42:         # We only care about function names.\n    43:         if context.segment.name != \"function_name_identifier\":\n    44:             return None\n    45: \n    46:         # Only care if the function is ``IFNULL`` or ``NVL``.\n    47:         if context.segment.raw_upper not in {\"IFNULL\", \"NVL\"}:\n    48:             return None\n    49: \n    50:         # Create fix to replace ``IFNULL`` or ``NVL`` with ``COALESCE``.\n    51:         fix = LintFix.replace(\n    52:             context.segment,\n    53:             [\n    54:                 CodeSegment(\n    55:                     raw=\"COALESCE\",\n    56:                     name=\"function_name_identifier\",\n    57:                     type=\"function_name_identifier\",\n    58:                 )\n    59:             ],\n    60:         )\n    61: \n    62:         # Create a specific description based on the function used\n    63:         description = f\"Use 'COALESCE' instead of '{context.segment.raw_upper}'.\"\n    64:         return LintResult(context.segment, [fix], description=description)",
+    "model_stats": {
+      "instance_cost": 0,
+      "tokens_sent": 0,
+      "tokens_received": 0,
+      "api_calls": 24
+    }
+  },
+  "environment": "main"
+}

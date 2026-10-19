@@ -1,0 +1,4 @@
+kind: artifacts
+candidate_traj_root: ''
+candidate_traj_pattern: '**/*.traj'
+target_record_ids: []

@@ -1,0 +1,10 @@
+name: qwen35_9b
+model_path: Qwen/Qwen3.5-9B
+tokenizer_path: Qwen/Qwen3.5-9B
+dtype: bfloat16
+trust_remote_code: true
+gpu_memory_utilization: 0.95
+tensor_parallel_size: 1
+auxiliary_vllm:
+  tensor_parallel_size: 1
+  gpu_memory_utilization: 0.95

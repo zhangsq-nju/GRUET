@@ -1,0 +1,9 @@
+kind: swe_bench
+subset: lite
+path_override:
+split: dev
+filter: .*
+slice: ''
+shuffle: false
+candidate_traj_pattern: '**/*.traj'
+target_record_ids: []

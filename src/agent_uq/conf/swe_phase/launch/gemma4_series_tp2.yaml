@@ -1,0 +1,26 @@
+output_dir: ${output_dir}/launch
+python_executable: python
+run_module: sweagent.run.run
+num_workers: 1
+model:
+  name: ''
+  backend: vllm
+  tokenizer_path: ''
+  tensor_parallel_size: 2
+  gpu_memory_utilization: 0.95
+  chat_template_kwargs:
+    enable_thinking: true
+  trust_remote_code: true
+sampling:
+  temperature: 1.0
+  top_p: 0.95
+  top_k: 64
+  max_output_tokens: 4096
+candidate_sampling:
+  num_candidates: 15
+  max_retry_candidates: 90
+agent:
+  max_steps: 60
+deployment:
+  python_standalone_dir: ''
+extra_args: []

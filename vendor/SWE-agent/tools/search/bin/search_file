@@ -1,0 +1,45 @@
+main() {
+    local search_term="${1:-}"
+    if [ -z "${search_term}" ]; then
+        echo "Usage: search_file <search_term> [<file>]"
+        return
+    fi
+    if [ $# -ge 2 ]; then
+        if [ -f "$2" ]; then
+            local file="$2"
+        else
+            echo "Usage: search_file <search_term> [<file>]"
+            echo "Error: File name $2 not found. Please provide a valid file name."
+            return
+        fi
+    else
+        local CURRENT_FILE=$(_read_env CURRENT_FILE)
+        if [ -z "${CURRENT_FILE:-}" ]; then
+            echo "No file open. Use the open command first."
+            return
+        fi
+        local file="$CURRENT_FILE"
+    fi
+    local search_term="$1"
+    file=$(realpath "$file")
+    local matches=$(grep -nH -- "$search_term" "$file")
+    if [ -z "${matches:-}" ]; then
+        echo "No matches found for \"$search_term\" in $file"
+        return
+    fi
+    local num_matches=$(echo "$matches" | wc -l | awk '{$1=$1; print $0}')
+
+    local num_lines=$(echo "$matches" | cut -d: -f1 | sort | uniq | wc -l | awk '{$1=$1; print $0}')
+    if [ $num_lines -gt 100 ]; then
+        echo "More than $num_lines lines matched for \"$search_term\" in $file. Please narrow your search."
+        return
+    fi
+
+    echo "Found $num_matches matches for \"$search_term\" in $file:"
+    echo "$matches" | cut -d: -f1-2 | sort -u -t: -k2,2n | while IFS=: read -r filename line_number; do
+        echo "Line $line_number:$(sed -n "${line_number}p" "$file")"
+    done
+    echo "End of matches for \"$search_term\" in $file"
+}
+
+main "$@"

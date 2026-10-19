@@ -1,0 +1,15 @@
+auxiliary_model: Qwen/Qwen3.5-9B
+auxiliary_revision: c202236235762e1c871ad0ccb60c8ee5ba337b9a
+bert_model: bert-base-uncased
+bert_revision: 86b5e0934494bd15c9632b12f734a8a67f723594
+max_model_len: 65536
+batch_size: 1
+enable_thinking: false
+topo_num_samples: 5
+llm_kwargs:
+  dtype: bfloat16
+  seed: 0
+  tensor_parallel_size: 1
+  gpu_memory_utilization: 0.95
+  trust_remote_code: true
+  enforce_eager: true

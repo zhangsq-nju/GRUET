@@ -1,0 +1,6 @@
+strategy: local_swe_rex_rewrite
+wheelhouse_dir: ${oc.env:HOME}/.cache/agentuq/swe_rex_wheelhouse
+local_image_prefix: agentuq/swe-rex-bootstrap
+host_pip_index_url: https://pypi.tuna.tsinghua.edu.cn/simple
+host_pip_trusted_host: pypi.tuna.tsinghua.edu.cn
+docker_platform: linux/amd64

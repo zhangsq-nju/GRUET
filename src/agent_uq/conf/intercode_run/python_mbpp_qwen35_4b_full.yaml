@@ -1,0 +1,12 @@
+# @package _global_
+defaults:
+- override /model: qwen35_4b
+- override /env: python_mbpp
+- override /sampling: qwen35_mbpp_stop1024
+- _self_
+intercode_run:
+  name: python_mbpp_qwen35_4b_full
+  output_root: output/${intercode_run.name}
+output_dir: ${intercode_run.output_root}
+run_dir: ${output_dir}
+max_records: 100

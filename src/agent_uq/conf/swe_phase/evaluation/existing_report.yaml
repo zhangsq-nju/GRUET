@@ -1,0 +1,9 @@
+mode: existing_report
+report_path: ''
+prediction_source_path:
+normalized_report_path: ${output_dir}/runtime/results.json
+sb_cli:
+  subset: auto
+  split: auto
+  output_dir: ${output_dir}/runtime/sb-cli-reports
+  api_key_env: SWEBENCH_API_KEY

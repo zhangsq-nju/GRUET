@@ -1,0 +1,28 @@
+defaults:
+- model: qwen35_2b
+- env: python_mbpp
+- sampling: qwen35
+- score_execution: default
+- estimator: gut_up
+- aggregator: mean
+- policy: random
+- evaluation: default
+- _self_
+- optional intercode_run:
+run_id: ${now:%Y%m%d_%H%M%S}
+output_dir: output/agent_uq/${run_id}
+gzip_records: false
+use_pairwise_nli_artifact_cache: true
+use_graph_artifact_cache: true
+graph_artifact_dir:
+graph_artifact_cache_mode: read_write
+graph_artifact_cache_adoption: reject_unprofiled
+graph_artifact_cache_profile:
+log_level: INFO
+max_records:
+hydra:
+  run:
+    dir: ${output_dir}/hydra
+  job:
+    chdir: false
+run_dir: ${output_dir}

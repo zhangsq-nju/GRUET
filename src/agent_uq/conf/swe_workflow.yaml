@@ -1,0 +1,18 @@
+defaults:
+- swe_phase/source@source: artifacts
+- swe_phase/bootstrap@bootstrap: none
+- swe_phase/launch@launch: default
+- swe_phase/evaluation@evaluation: existing_report
+- swe_phase/import@import: default
+- _self_
+- optional swe_run:
+output_dir: output/swe_workflow
+mode: import_only
+log_level: INFO
+authoritative:
+  config_path: vendor/SWE-agent/config/gruet.yaml
+hydra:
+  run:
+    dir: ${output_dir}/hydra
+  job:
+    chdir: false

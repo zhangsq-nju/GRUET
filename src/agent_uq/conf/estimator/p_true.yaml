@@ -1,0 +1,4 @@
+name: p_true
+class_path: agent_uq.uq.lm_polygraph.PTrueEstimator
+anchor_mode: selected
+auxiliary_model_ref: sampled_model

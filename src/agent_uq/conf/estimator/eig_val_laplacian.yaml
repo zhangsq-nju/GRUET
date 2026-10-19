@@ -1,0 +1,7 @@
+name: eig_val_laplacian
+class_path: agent_uq.uq.lm_polygraph.EigValLaplacianEstimator
+similarity_score: NLI_score
+affinity: entail
+nli_model_name: microsoft/deberta-large-mnli
+nli_batch_size: 32
+nli_device:

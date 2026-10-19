@@ -1,0 +1,7 @@
+name: semantic_density
+class_path: agent_uq.uq.lm_polygraph.SemanticDensityEstimator
+anchor_mode: selected
+concat_input: true
+nli_model_name: microsoft/deberta-large-mnli
+nli_batch_size: 32
+nli_device:
