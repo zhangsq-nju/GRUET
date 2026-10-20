@@ -11,7 +11,7 @@ GRUET (Graph-based Reasoning UncErtainty in Trajectories) represents sampled rea
 ## Getting Started
 
 ```bash
-git clone https://github.com/Mark-Liangs/GRUET.git
+git clone https://github.com/zhangsq-nju/GRUET.git
 cd GRUET
 ```
 
